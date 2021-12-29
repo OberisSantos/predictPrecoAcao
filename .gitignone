@@ -119,3 +119,14 @@ static_collected
 # Exclude machine-specific vs code settings
 .vscode/settings.json
 >>>>>>> 91526e6563367c49e2fc3f51999336375182707c
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
