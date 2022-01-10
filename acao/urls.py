@@ -18,11 +18,7 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name = 'home'),
-<<<<<<< HEAD
     path('predict/acao', views.predict, name='predict'),
-=======
-    path('buscar/acao', views.buscar_acao, name='buscar_acao'),
->>>>>>> 91526e6563367c49e2fc3f51999336375182707c
     path('buscar/acao/array', views.get_acao_array, name='get_acao_array'),
     
 

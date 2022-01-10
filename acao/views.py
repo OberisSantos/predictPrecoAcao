@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-=======
->>>>>>> 91526e6563367c49e2fc3f51999336375182707c
 from django.shortcuts import render
 import pandas as pd
 import numpy as np
@@ -18,7 +15,6 @@ from scipy import stats
 
 from sklearn.metrics import  mean_absolute_error
 
-<<<<<<< HEAD
 from sklearn.metrics import mean_squared_error
 from math import sqrt
 
@@ -29,19 +25,20 @@ from sklearn.preprocessing import StandardScaler
 from datetime import date
 
 
-=======
-from datetime import date
-
->>>>>>> 91526e6563367c49e2fc3f51999336375182707c
 # Create your views here.
 
 def home(request):
     return render(request, 'acao/home.html', {})
 
-<<<<<<< HEAD
 def predict(request):
-    indice = request.GET['indice']
+    indice = request.POST['indice']
+    indice = indice.strip()+'.SA'
+
     codigo = [indice]
+    print(codigo)
+    
+    #import sys
+    #sys.exit() 
 
     dataset =  get_acao(codigo)
     
@@ -53,11 +50,15 @@ def predict(request):
 
     #dataset = pd.DataFrame(dataset)
     
+    #pevisao para algoritmo de Monte Carlos
     prev_mc = previsao_monte_carlo(dataset)
-    prev_mc = json.dumps(prev_mc)
+    #prev_mc = json.dumps(prev_mc)
+
+    return JsonResponse({"success":True, 'msg': 'Funciona', "mc_json":prev_mc}, status=200)
     
+    #previsao para algoritmo do Keras LSTM
     prev_keras_lstm = keras_lstm(dataset)
-    prev_keras_lstm = json.dumps(prev_keras_lstm)
+    #prev_keras_lstm = json.dumps(prev_keras_lstm)
     #mc_real = prev_mc['valor_real']
     print(prev_keras_lstm)
     #real = json.dumps(monte_carlo_real)
@@ -68,13 +69,6 @@ def buscar_acao(request):
     #yf.pdr_override()
 
     indice = request.GET['indice']
-=======
-
-def buscar_acao(request):
-    yf.pdr_override()
-
-    busca = request.GET['busca']
->>>>>>> 91526e6563367c49e2fc3f51999336375182707c
 
     #acao = pdr.get_data_yahoo(busca, start = '2015-01-01')['Close']
     
@@ -103,7 +97,6 @@ def buscar_acao(request):
     #return render(request, 'acao/teste.html', context={"mydata_json":json.dumps(real)}) #usar esse modelo
     #return JsonResponse(request, real)
 
-<<<<<<< HEAD
 def get_acao(codigo=[], periodo = 10):#padrão de 10 anos para o período
   yf.pdr_override()
   df = pd.DataFrame()
@@ -126,17 +119,6 @@ def previsao_monte_carlo(dataset):
 
     dataset = (dataset['Close'])
    
-=======
-def buscar__acao(request):
-    mydata = {'age':12}
-    return render(request, 'acao/teste.html', context={"mydata_json": json.dumps(mydata)})
-
-
-
-
-def previsao_monte_carlo(dataset):
-    dataset = (dataset['Close'])
->>>>>>> 91526e6563367c49e2fc3f51999336375182707c
     #dataset = dataset.to_list() #converter para lista
     #dataset = pd.DataFrame(dataset)
     dias_a_frente = 90
@@ -254,7 +236,6 @@ def get_acao_array(request):
     
     
 
-<<<<<<< HEAD
     return render(request, 'acao/get_acao_array.html', {})
 
 
@@ -273,9 +254,8 @@ def create_df(df, steps=1):
 #Função para prever valores futuros keras LSTM
 def previsao_futura_lstm(test, steps, scaler, model, df):  
   #previsao para os dias futuros
-  len_teste = len(test)
-  #pegar os últimos dias que são o tamanho do step
-  dias_input_steps = len_teste - steps
+  len_teste = len(test)  
+  dias_input_steps = len_teste - steps #pegar os últimos dias que são o tamanho do step
   #transformar em array
   input_steps = test[dias_input_steps:]
   input_steps = np.array(input_steps).reshape(1,-1)
@@ -351,7 +331,7 @@ def keras_lstm(df):
       len_linhas = len(df_close)
       len_linha_treino = round(.80 * len_linhas)
 
-      #normalizar os dados: importante para meu modelo não endender que um valor é mais importante que outro
+      #normalizar os dados: importante para meu modelo não entender que um valor é mais importante que outro
       df_close = pd.DataFrame(df_close)
       scaler = StandardScaler()
       df_scaled = scaler.fit_transform(df_close)
@@ -383,7 +363,7 @@ def keras_lstm(df):
       #model.summary()
 
       #treinamento do modelo
-      validation = model.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs=100, batch_size=15, verbose=0)
+      validation = model.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs=4, batch_size=15, verbose=0)
 
       #Fazendo a previsao
       prev = model.predict(X_test)
@@ -417,6 +397,3 @@ def keras_lstm(df):
     
   return lstm
 
-=======
-    return render(request, 'acao/get_acao_array.html', {})
->>>>>>> 91526e6563367c49e2fc3f51999336375182707c
