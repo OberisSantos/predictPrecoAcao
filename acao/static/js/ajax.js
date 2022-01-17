@@ -20,7 +20,9 @@ $("#buscaForm").submit(function(e){
             console.log('tudo certto');
             $("#load").hide();
             $("#prevTab").show();
-            previsao_mc(response);
+
+            //previsao_mc(response);
+            previsao_lstm(response);
         },
         error: function(response){
             $("#load").hide();

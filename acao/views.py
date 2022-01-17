@@ -13,16 +13,20 @@ import pandas_datareader as pdr
 
 from scipy import stats
 
-from sklearn.metrics import  mean_absolute_error
+from sklearn.metrics import  mean_absolute_error, mean_squared_error
 
-from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import  train_test_split
 from math import sqrt
 
 from keras.models import  Sequential
 from keras.layers import Dense, Dropout, LSTM
 from sklearn.preprocessing import StandardScaler
 
+from keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
+
 from datetime import date
+
+
 
 
 # Create your views here.
@@ -33,84 +37,37 @@ def home(request):
 def predict(request):
     indice = request.POST['indice']
     indice = indice.strip()+'.SA'
+    codigo = [indice]  
 
-    codigo = [indice]
-    print(codigo)
-    
-    #import sys
-    #sys.exit() 
+    #import sys 
+    #sys.exit() #interroper
 
     dataset =  get_acao(codigo)
     
-    #print(dataset)
-
-
-    #dataset = pd.read_csv("F:/preco_acao/acao/media/petr4.csv")
-    #return render(request, 'acao/home.html', {})
-
-    #dataset = pd.DataFrame(dataset)
-    
     #pevisao para algoritmo de Monte Carlos
-    prev_mc = previsao_monte_carlo(dataset)
+    #prev_mc = previsao_monte_carlo(dataset)
+    prev_lstm = lstm(dataset)
     #prev_mc = json.dumps(prev_mc)
 
-    return JsonResponse({"success":True, 'msg': 'Funciona', "mc_json":prev_mc}, status=200)
+    #return JsonResponse({"success":True, 'msg': 'Funciona', "mc_json":prev_mc}, status=200)
+    return JsonResponse({"success":True, "lstm_json":prev_lstm}, status=200)
     
     #previsao para algoritmo do Keras LSTM
-    prev_keras_lstm = keras_lstm(dataset)
+    #prev_keras_lstm = keras_lstm(dataset)
     #prev_keras_lstm = json.dumps(prev_keras_lstm)
     #mc_real = prev_mc['valor_real']
-    print(prev_keras_lstm)
     #real = json.dumps(monte_carlo_real)
     
-    return render(request, 'acao/home.html', context={"mc_json":json.dumps(prev_mc), 'lstm_json':json.dumps(prev_keras_lstm)}) #usar esse modelo
+    #return render(request, 'acao/home.html', context={"mc_json":json.dumps(prev_mc), 'lstm_json':json.dumps(prev_keras_lstm)}) #usar esse modelo
 
-def buscar_acao(request):
-    #yf.pdr_override()
 
-    indice = request.GET['indice']
-
-    #acao = pdr.get_data_yahoo(busca, start = '2015-01-01')['Close']
-    
-    acao = pd.read_csv("F:/preco_acao/acao/media/acao.csv")
-    
-    #converter para DateFrame
-    acao = pd.DataFrame(acao)
-
-    #apagar valores nulos
-    acao.dropna(inplace=True) #remover
-    acao = acao.rename(columns={'PETR3.SA': 'Close'}) #remover
-    acao.set_index('Date', inplace=True)
-    
-    #resetar o index
-    #acaodf.reset_index('Date', inplace=True)
-    
-    monte_carlo = previsao_monte_carlo(acao)
-    monte_carlo_real = monte_carlo['valor_real']
-    #real = json.dumps(monte_carlo_real)
-
-    monte_carlo = json.dumps(monte_carlo)
-    
-    #return render(request, 'acao/teste.html', {'monte_carlo': monte_carlo})
-   
-    return render(request, 'acao/teste.html', context={"mcprev_json":json.dumps(monte_carlo)}) #usar esse modelo
-    #return render(request, 'acao/teste.html', context={"mydata_json":json.dumps(real)}) #usar esse modelo
-    #return JsonResponse(request, real)
-
-def get_acao(codigo=[], periodo = 10):#padrão de 10 anos para o período
+def get_acao(codigo=[], periodo = 5):#padrão de 10 anos para o período
   yf.pdr_override()
   df = pd.DataFrame()
   for acao in codigo:
     df[acao] = yf.Ticker(acao).history(period = (str(periodo)+'y'))['Close']
     
   return df
-
-'''
-def buscar__acao(request):
-    mydata = {'age':12}
-    return render(request, 'acao/teste.html', context={"mydata_json": json.dumps(mydata)})
-'''
-
 
 
 def previsao_monte_carlo(dataset):
@@ -204,42 +161,128 @@ def previsao_monte_carlo(dataset):
     
     return dados
 
-def get_acao_array(request):
-    yf.pdr_override()
 
-    array_acao = []
-    array_acao.append(request.GET.get('indice1', False))
-    array_acao.append(request.GET.get('indice2', False))
+#previsao com rede neural recorrente lstm-keras
+def lstm(df, n_futuro=90, steps=30):	
+  df_original = df.reset_index() #resetar o index
+  acoes = df_original.set_index(pd.DatetimeIndex(df_original['Date'].values))
 
-    if array_acao[0] != False and array_acao[1] != False:  
-        acoes = pd.DataFrame()
-        for acao in array_acao:
-            acoes[acao] = pdr.get_data_yahoo(acao, start = '2015-01-01')['Close']
+  df_colunas = acoes.columns
+  codigo = df_colunas[1] #pegar o código da ação
 
-        acoes.dropna(inplace=True) #remover
-        
-        monte_carlo = []
+  df_close = acoes[codigo]
+  df_close.dropna(inplace=True) #remover valores nulos
 
-        for indice in array_acao:
-            acao = acoes.rename(columns={indice: 'Close'}) #remover
-            #acao.set_index('Date', inplace=True)
-            monte_carlo.append(indice)
-            monte_carlo.append(previsao_monte_carlo(acao))
+  #normalizar os dados: importante para meu modelo não endender que um valor é mais importante que outro
+  df_close = pd.DataFrame(df_close)
+  scaler = StandardScaler()
+  df_scaled = scaler.fit_transform(df_close)
 
-        return render(request, 'acao/get_acao_array.html', {'monte_carlo': monte_carlo})
-   
-        
-    #if(indice1 in request.GET and indice2 in request.GET):
-        
-        #array = [request.GET.get('indice1', False) and request.GET.get('indice2', False)]
-        #print('aqui')
+  #separar treino e teste   sendo 20% para teste  
+  train, test = train_test_split(df_scaled, test_size=0.2, shuffle=False)
+
+  #gerando dados de treino e teste
+  steps = steps #considerar os 30 valores para prever o 31
     
-    
+  #Criar um função que retorna array para treinar e testar
+  X_train, Y_train = create_df(train, steps)
+  X_test, Y_test = create_df(test, steps)
 
-    return render(request, 'acao/get_acao_array.html', {})
+  #gerando os dados no formato do modelo
+  X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], 1) #recriando os dados de treinamento - o 1 é a quantidades de fitware
+  X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], 1)
 
+  #montar as camadas da redes
+  model = Sequential() #return_sequences=True - cria uma memomira para o modelo
+  #LSTM tipo de rede recorrente - Memoria de Longo prazo
 
-#previsao com keras LSTM
+  model.add(LSTM(35, return_sequences=True, input_shape=(steps, 1))) #o 35 é a quantidade de neuronios
+  model.add(LSTM(35, return_sequences=True)) #criar mais uma camada
+  model.add(LSTM(35))
+  model.add(Dropout(0.2)) #Dropout - para regularizar o modelo para evitar o Overfitting
+  model.add(Dense(1)) #camada de saída com 1 valor previsto
+
+  #compilar o modelo
+  model.compile(optimizer='adam', loss='mse')
+
+  #stop no treinamento do modelo quando não tiver melhora
+  '''reduce_lr = ReduceLROnPlateau(monitor='loss', factor=0.2,
+                        patience=10, min_lr=0.001)
+  es = EarlyStopping(monitor='loss', min_delta=1e-10, patience=15)
+  #treinar o modelo com stop
+  model.fit(X_train, Y_train, epochs=100, batch_size=30, verbose=0, callbacks=[es, reduce_lr])
+  '''
+
+  #treinar o modelo sem stop
+  model.fit(X_train, Y_train, epochs=100, batch_size=steps, verbose=0)
+
+  #Realizar uma previsão para validar o modelo
+  previsao_validacao = model.predict(X_test)
+
+  #inverter os valores de normalizado para o valor real
+  previsao_validacao = scaler.inverse_transform(previsao_validacao) 
+
+  #criar um DataFrame como os valores real e os valores previsto para validar o modelo
+  #pegar os valores real
+  Y_real = Y_test.reshape(-1,1)
+  #inverter os valores 
+  Y_real = scaler.inverse_transform(Y_real)
+  df_validacao = pd.DataFrame(previsao_validacao)
+  df_validacao.rename(columns={0: 'previsao'}, inplace=True)
+  df_validacao['data'] = df_close.index[-len(Y_real):]
+  df_validacao['preco'] = Y_real
+
+  #validacao = metrica(df_validacao)
+
+  #continuar treinando o modelo como os dados usado para testar e assim prever os valores futuro
+  '''checkpoint_filepath = '/tmp/checkpoint' #armazenar temporario
+  model_checkpoint_callback = ModelCheckpoint(
+    filepath=checkpoint_filepath, save_weights_only=True, monitor='loss', mode='max', save_best_only=True)
+  '''
+  #treinar novamenete o modelo com os demais dados
+  #model.fit(X_test, Y_test, epochs=100, batch_size=30, verbose=0)
+
+  #Realizar previsão para os dias futuro
+
+  n_futuro = n_futuro #dias para o futuro
+  prediction_list = X_test[-1:] #pegar os steps valores para prever o próximo
+
+  for _ in range(n_futuro):
+    x = prediction_list[-steps:]
+    x = np.array(x)
+    x = x.reshape((1, steps, 1))
+    out = model.predict(x, batch_size=steps)[0][0] #pegar o valor previsto
+    prediction_list = np.append(prediction_list, out) #adicionar o valor previsto no final da lista
+
+  predict_futuro = prediction_list[steps:] #carregar somenente os n_futuro valores previsto
+
+  #inverter os valores 
+  predict_futuro = predict_futuro.reshape(-1,1)
+  futuro_previsto = scaler.inverse_transform(predict_futuro)
+
+  #criar um DataFrame com os valores futuro
+  df_futuro = pd.DataFrame(futuro_previsto)
+  df_futuro.rename(columns={0:'futuro'}, inplace=True)
+
+  #criar datas referente aos valoes Real
+  dates = pd.to_datetime(df_close.index[-len(Y_real):])
+  #Datas para o futuro, considerar apenas dias úteis
+  predict_dates = pd.date_range(list(dates)[-1] + pd.DateOffset(1), periods=n_futuro, freq='b').tolist()
+
+  #Adicionar as datas ao DataFrame df_futuro
+  df_futuro['data'] = predict_dates
+
+  dados = {
+    'previsao': df_validacao['previsao'].to_list(),
+    'preco': df_validacao['preco'].to_list(),
+    'data': df_validacao['data'].to_list(),
+    #'validacao': validacao,
+    'futuro': df_futuro['futuro'].to_list(),
+    'data_futuro': df_futuro['data'].to_list(),
+    #'metrica': metrica_treino
+  }
+
+  return dados
 
 #converte em array de valores
 def create_df(df, steps=1):
@@ -250,150 +293,3 @@ def create_df(df, steps=1):
     dataY.append(df[i + steps, 0])
 
   return np.array(dataX), np.array(dataY)
-
-#Função para prever valores futuros keras LSTM
-def previsao_futura_lstm(test, steps, scaler, model, df):  
-  #previsao para os dias futuros
-  len_teste = len(test)  
-  dias_input_steps = len_teste - steps #pegar os últimos dias que são o tamanho do step
-  #transformar em array
-  input_steps = test[dias_input_steps:]
-  input_steps = np.array(input_steps).reshape(1,-1)
-  #transformar em lista
-  list_output_steps = list(input_steps)
-  list_output_steps = list_output_steps[0].tolist()
-
-  #looop para prever os proximos dias
-  pred_output = []
-  i = 0
-  n_futuro = 90 #total de dias
-
-  while(i < n_futuro):
-
-    if(len(list_output_steps) > steps):
-      input_steps = np.array(list_output_steps[1:])
-      input_steps = input_steps.reshape(1, -1)
-      input_steps = input_steps.reshape((1, steps, 1))
-      pred = model.predict(input_steps, verbose=0)
-      list_output_steps.extend(pred[0].tolist())
-      list_output_steps = list_output_steps[1:]
-      pred_output.extend(pred.tolist())
-      i = i + 1
-
-    else:
-      input_steps = input_steps.reshape((1, steps, 1))
-      pred = model.predict(input_steps, verbose=0)
-      list_output_steps.extend(pred[0].tolist())
-      pred_output.extend(pred.tolist())
-      i = i+1
-
-  #transforma a saida
-  prev_tutura = scaler.inverse_transform(pred_output)
-  prev_tutura = np.array(prev_tutura).reshape(1, -1)
-  list_output_pred = list(prev_tutura)
-  list_output_pred = prev_tutura[0].tolist()
-
-  #pegar as datas das previsoes
-  #dates = pd.to_datetime(df.index)
-  #predict_dates = pd.date_range(list(dates)[-1] + pd.DateOffset(1), periods=n_futuro, freq='b').tolist()
-
-  #Cria dataFrame de previsao
-  #previsao_dates = []
-  #for i in predict_dates:
-    #previsao_dates.append(i.date())
-
-  #df_previsao = pd.DataFrame({'Date': np.array(predict_dates), 'Close': list_output_pred})
-  #df_previsao['Date'] = pd.to_datetime(df_previsao['Date'])
-
-  #colocar a data com index
-  #df_previsao = df_previsao.set_index(pd.DatetimeIndex(df_previsao['Date'].values))
-  #df_previsao.drop('Date', axis=1, inplace=True)
-  
-  return list_output_pred
-
-
-#Função LSTM
-def keras_lstm(df):
-  df_original = df.reset_index()
-  prev_lstm = {}
-
-  prev_futura_lstm = {}
-
-  acoes = df_original.set_index(pd.DatetimeIndex(df_original['Date'].values))
-  
-  for acao in df:
-    df_close = acoes[acao]
-    df_close.dropna(inplace=True)
-
-
-    if len(df_close) > 365: #minimo de dados para realizar a previsao
-      #verificar a quantidade de linhas
-      len_linhas = len(df_close)
-      len_linha_treino = round(.80 * len_linhas)
-
-      #normalizar os dados: importante para meu modelo não entender que um valor é mais importante que outro
-      df_close = pd.DataFrame(df_close)
-      scaler = StandardScaler()
-      df_scaled = scaler.fit_transform(df_close)
-
-      #separar treino e teste      
-      train = df_scaled[:len_linha_treino]
-      test = df_scaled[len_linha_treino:]
-
-      #gerando dados de treino e teste
-      steps = 15 #considerar os 15 valores para prever o 16
-      X_train, Y_train = create_df(train, steps)
-      X_test, Y_test = create_df(test, steps)
-      
-      #gerando os dados no formato do modelo
-      X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], 1) #recriando os dados de treinamento - o 1 é a quantidades de fitware
-      X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], 1)
-
-      #montar as camadas da redes
-      model = Sequential() #return_sequences=True - cria uma memomira para o modelo
-      model.add(LSTM(35, return_sequences=True, input_shape=(steps, 1) )) #o 35 é a quantidade de neuronios
-      model.add(LSTM(35, return_sequences=True)) #criar mais uma camada
-      model.add(LSTM(35))
-      model.add(Dropout(0.2)) #Dropout - para regularizar o modelo para evitar o Overfitting
-      model.add(Dense(1))
-
-      #compilar o modelo
-      model.compile(optimizer='adam', loss='mse')
-
-      #model.summary()
-
-      #treinamento do modelo
-      validation = model.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs=4, batch_size=15, verbose=0)
-
-      #Fazendo a previsao
-      prev = model.predict(X_test)
-      prev = scaler.inverse_transform(prev) #inverter os valores de normalizado para o valor real
-
-
-      y_teste = scaler.inverse_transform(test)
-      y_teste = y_teste[steps:-1]
-      y_teste = pd.Series(y_teste[:, 0])
-      #accuracy = accuracy_score(y_teste, prev)
-    
-      previsao = pd.Series(prev[:, 0])
-      rmse = sqrt(mean_squared_error(y_teste, previsao))
-
-      prev_lstm[acao] = [
-          pd.Series(prev[:, 0]).to_list(),
-          y_teste.to_list(),
-          rmse
-      ]
-      
-      #realizar previsao futura
-      prev_futura_lstm[acao] = previsao_futura_lstm(test, steps, scaler, model, df)
-      
-  lstm = {
-      'validacao':  prev_lstm,
-      'previsao': prev_futura_lstm
-  }
-  
-  
-    
-    
-  return lstm
-
