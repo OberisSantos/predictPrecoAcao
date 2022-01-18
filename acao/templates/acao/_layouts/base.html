@@ -15,6 +15,8 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.2/chart.min.js"></script>
 
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         
         <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/font-awesome-line-awesome/css/all.min.css">
 
@@ -28,15 +30,30 @@
             <script src="{% static 'js/mcarlos.js' %}"></script>
         {% endif %}
         
-
+        <style>
+            .bd-placeholder-img {
+              font-size: 1.125rem;
+              text-anchor: middle;
+              -webkit-user-select: none;
+              -moz-user-select: none;
+              user-select: none;
+            }
+      
+            @media (min-width: 768px) {
+              .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+              }
+            }
+        </style>
+      
 
     </head>
     <body>
-    
         <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-            <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">Previsão de preços de ações da B3</a>
-        
+            <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="">Predict</a>
+            
         </header>
+        
 
         <div class="container">
             {% block conteudo %}

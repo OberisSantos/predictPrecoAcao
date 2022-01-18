@@ -4,7 +4,8 @@ $("#buscaForm").submit(function(e){
 
     let serializeData = $(this).serialize();
     let url = "predict/acao";
-
+    
+    
     $.ajax({
         type: 'POST',
         url: url,
@@ -22,13 +23,14 @@ $("#buscaForm").submit(function(e){
             $("#prevTab").show();
 
             //previsao_mc(response);
-            previsao_lstm(response);
+            //previsao_lstm(response);
+            keras(response);
         },
         error: function(response){
             $("#load").hide();
         }
 
-    })
+    }) 
 
 });
 

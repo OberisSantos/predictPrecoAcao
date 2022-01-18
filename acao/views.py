@@ -18,7 +18,7 @@ from sklearn.metrics import  mean_absolute_error, mean_squared_error
 from sklearn.model_selection import  train_test_split
 from math import sqrt
 
-from keras.models import  Sequential
+from keras.models import  Sequential, load_model
 from keras.layers import Dense, Dropout, LSTM
 from sklearn.preprocessing import StandardScaler
 
@@ -163,7 +163,7 @@ def previsao_monte_carlo(dataset):
 
 
 #previsao com rede neural recorrente lstm-keras
-def lstm(df, n_futuro=90, steps=30):	
+def lstm(df, n_futuro=90, steps=3):	
   df_original = df.reset_index() #resetar o index
   acoes = df_original.set_index(pd.DatetimeIndex(df_original['Date'].values))
 
@@ -214,7 +214,10 @@ def lstm(df, n_futuro=90, steps=30):
   '''
 
   #treinar o modelo sem stop
-  model.fit(X_train, Y_train, epochs=100, batch_size=steps, verbose=0)
+  model.fit(X_train, Y_train, epochs=2, batch_size=steps, verbose=0, shuffle=False)
+
+  #Salvar o modelo treinado
+  model.save('acao/media/lstm/modeloTreinado.h5')
 
   #Realizar uma previsão para validar o modelo
   previsao_validacao = model.predict(X_test)
@@ -242,6 +245,16 @@ def lstm(df, n_futuro=90, steps=30):
   #treinar novamenete o modelo com os demais dados
   #model.fit(X_test, Y_test, epochs=100, batch_size=30, verbose=0)
 
+  #Reload model
+  model = load_model('acao/media/lstm/modeloTreinado.h5')
+  
+  #remover o modelo salvo
+  if os.path.exists('acao/media/lstm/modeloTreinado.h5'):
+    os.remove('acao/media/lstm/modeloTreinado.h5')
+
+  #treinar novamenete o modelo com os demais dados
+  model.fit(X_test, Y_test, epochs=2, batch_size=steps, verbose=0, shuffle=False)
+
   #Realizar previsão para os dias futuro
 
   n_futuro = n_futuro #dias para o futuro
@@ -253,6 +266,8 @@ def lstm(df, n_futuro=90, steps=30):
     x = x.reshape((1, steps, 1))
     out = model.predict(x, batch_size=steps)[0][0] #pegar o valor previsto
     prediction_list = np.append(prediction_list, out) #adicionar o valor previsto no final da lista
+    #limpar os dados
+    model.reset_states()
 
   predict_futuro = prediction_list[steps:] #carregar somenente os n_futuro valores previsto
 

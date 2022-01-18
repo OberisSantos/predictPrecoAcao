@@ -31,12 +31,12 @@
                         {% csrf_token %}
     
                         <div class="form-group" >
-                            <input id="searchHome"  name='indice' type="text" class="form-control form-control" placeholder="Ex.: BOVA11">
+                            <input name='indice'id="searchHome" type="text" class="form-control" placeholder="Ex.: bova11">
                         </div>
     
                     
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-warning btn-lg" style="font-weight: 500;">Buscar</button>
+                            <button type="submit" class="btn btn-warning btn-sm" style="font-weight: 500;">Buscar</button>
                         </div>
                     
                     </form>
@@ -46,34 +46,80 @@
                         Aguarde! estamos realizando a previsão!
                     </p>
                     <p class="card-text">
-                        <img src="https://icons8.com/preloaders/preloaders/1495/Spinner-3.gif" style="width:150px;height:150px;" />
+                        <img src="https://icons8.com/preloaders/preloaders/1495/Spinner-3.gif" style="width:150px;height:100px;" />
                     </p>
                 </div>
             </div>
         </div>
     </div>
 
-  
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="real-tab" data-bs-toggle="tab" data-bs-target="#real" type="button" role="tab" aria-controls="ral" aria-selected="true">Comparação de preço</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                <button class="nav-link" id="dias30-tab" data-bs-toggle="tab" data-bs-target="#dias30" type="button" role="tab" aria-controls="dias30" aria-selected="false">Previsão para 30 dias</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                <button class="nav-link" id="dias60-tab" data-bs-toggle="tab" data-bs-target="#dias60" type="button" role="tab" aria-controls="dias60" aria-selected="false">Previsão para 60 dias</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="dias90-tab" data-bs-toggle="tab" data-bs-target="#dias90" type="button" role="tab" aria-controls="dias90" aria-selected="false">Previsão para 90 dias</button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body">
+            <div class="container">
+                <div class="row">
+                  <div class="col-1 align-self-start">
+                  </div>
+                  <div class="col align-self-center">
+                    <div id="myPlot" style="width:100%;; max-height:400px"></div>
+                  </div>
+                  <div class="col-1 align-self-end">
+                  </div>
+                </div>
+              </div>
+          
+        </div>
+        <div class="card-footer" id='tabela'>
+            Card footer
+        </div>
+    </div>
+
     
 
+
     <div class="row" id="prevTab" style="display: none;">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="real-tab" data-bs-toggle="tab" data-bs-target="#real" type="button" role="tab" aria-controls="ral" aria-selected="true">Comparação de preço</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="dias30-tab" data-bs-toggle="tab" data-bs-target="#dias30" type="button" role="tab" aria-controls="dias30" aria-selected="false">Previsão para 30 dias</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="dias60-tab" data-bs-toggle="tab" data-bs-target="#dias60" type="button" role="tab" aria-controls="dias60" aria-selected="false">Previsão para 60 dias</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="dias90-tab" data-bs-toggle="tab" data-bs-target="#dias90" type="button" role="tab" aria-controls="dias90" aria-selected="false">Previsão para 90 dias</button>
+                    </li>
+                </ul>
+            </div>
 
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="real-tab" data-bs-toggle="tab" data-bs-target="#real" type="button" role="tab" aria-controls="ral" aria-selected="true">Comparação de preço</button>
-            </li>
-            <li class="nav-item" role="presentation">
-            <button class="nav-link" id="dias30-tab" data-bs-toggle="tab" data-bs-target="#dias30" type="button" role="tab" aria-controls="dias30" aria-selected="false">Previsão para 30 dias</button>
-            </li>
-            <li class="nav-item" role="presentation">
-            <button class="nav-link" id="dias60-tab" data-bs-toggle="tab" data-bs-target="#dias60" type="button" role="tab" aria-controls="dias60" aria-selected="false">Previsão para 60 dias</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="dias90-tab" data-bs-toggle="tab" data-bs-target="#dias90" type="button" role="tab" aria-controls="dias90" aria-selected="false">Previsão para 90 dias</button>
-            </li>
-        </ul>
+            <div class="card-body">
+              <h5 class="card-title">Special title treatment</h5>
+              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+              <a href="#" class="btn btn-primary">Go somewhere</a>
+            </div>
+        </div>
+        
 
-                
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="real" role="tabpanel" >
                 

@@ -1,6 +1,146 @@
-      
 
-google.charts.load('current', {'packages':['corechart']});
+var xArray = ['2022-01-19','2022-01-20','2022-01-21','2022-01-24'];
+var yArray = [100.470799,100.825146,101.050026,101.169745];
+
+var xArray2 = ['2022-01-19','2022-01-20','2022-01-21','2022-01-24'];
+var yArray2 = [102.470799,101.825146,101.050026,104.169745];
+// Define Data
+var data = [{
+  x: xArray,
+  y: yArray,
+  mode:"lines"
+}];
+//var data = [
+  //{x: xArray, y: yArray, mode:"lines", name:'Antes'},
+  //{x: xArray2, y: yArray2, mode:"lines", name:'depois'}
+//];
+// Define Layout
+var layout = {
+  xaxis: {title: "Datas", range: [xArray[0], xArray[2]]},//range: [40, 160], 
+  yaxis: {title: "Valor"},  //range: [5, 16],
+  title: "House Prices vs. Size"
+};
+
+// Display using Plotly
+Plotly.newPlot("myPlot", data, layout);
+ 
+ 
+function keras(response){
+
+  var lstmprevisao = response.lstm_json;
+  var lstm_previsao = lstmprevisao.previsao;
+  var lstm_preco = lstmprevisao.preco;
+  var lstm_data = lstmprevisao.data;
+  var lstm_futuro = lstmprevisao.futuro;
+  var lstm_data_futuro = lstmprevisao.data_futuro;
+
+  var data_passada = [];
+  for(var i = 0; i < lstm_data.length; i++ ){
+    var date = new Date(lstm_data[i]);
+    data_passada.push(date);
+  };
+
+  var data_futuro = [];
+  for(var i = 0; i < lstm_data_futuro.length; i++ ){
+    var date = new Date(lstm_data_futuro[i]);
+    data_futuro.push(date);
+  };
+  /**
+  var data_futuro30 = [];
+  for(var i = 0; i < 30; i++){
+    data_futuro30.push(data_futuro[i]);
+  }
+
+  var data_futuro60 = [];
+  for(var i = 0; i < 60; i++){
+    data_futuro60.push(data_futuro[i]);
+  }
+
+  var data_futuro90 = [];
+  for(var i = 0; i < 90; i++){
+    data_futuro90.push(data_futuro[i]);
+  }
+ */
+
+  //var xArray = ['2022-01-19','2022-01-20','2022-01-21','2022-01-24'];
+  //var yArray = [100.470799,100.825146,101.050026,101.169745];
+
+  function validacao(){
+    // Define Data
+    var data = [
+      {x: data_passada, y: lstm_previsao, mode:"lines", name:'previsão'},
+      {x: data_passada, y: lstm_preco, mode:"lines", name:'preço'}
+    ];
+    // Define Layout
+    var layout = {
+      xaxis: {title: "Datas"},//range: [40, 160], 
+      yaxis: {title: "Valor (R$)"},  //range: [5, 16],
+      title: "Preço de previsão e preço de fechamento"
+    };
+
+    // Display using Plotly
+    Plotly.newPlot("lstm_real", data, layout);
+  }
+
+  function previsao30(){
+    // Define Data
+    var data = [
+      {x: data_passada, y: lstm_preco, mode:"lines", name:'preço'},
+      {x: data_futuro, y: lstm_futuro, mode:"lines", name:'futuro'}
+    ];
+    // Define Layout
+    var layout = {
+      xaxis: {title: "Datas", range: [data_passada[0], data_futuro[29]]},//range: [40, 160], 
+      yaxis: {title: "Valor (R$)"},  //range: [5, 16],
+      title: "Previsão para 30 dias"
+    };
+
+    // Display using Plotly
+    Plotly.newPlot("lstm_previsao_30", data, layout);
+  }
+
+  function previsao60(){
+    // Define Data
+    var data = [
+      {x: data_passada, y: lstm_preco, mode:"lines", name:'preço'},
+      {x: data_futuro, y: lstm_futuro, mode:"lines", name:'futuro'}
+    ];
+    // Define Layout
+    var layout = {
+      xaxis: {title: "Datas", range: [data_passada[0], data_futuro[59]]},//range: [40, 160], 
+      yaxis: {title: "Valor (R$)"},  //range: [5, 16],
+      title: "Previsão para 60 dias"
+    };
+
+    // Display using Plotly
+    Plotly.newPlot("lstm_previsao_60", data, layout);
+  }
+
+  function previsao90(){
+    // Define Data
+    var data = [
+      {x: data_passada, y: lstm_preco, mode:"lines", name:'preço'},
+      {x: data_futuro, y: lstm_futuro, mode:"lines", name:'futuro'}
+    ];
+    // Define Layout
+    var layout = {
+      xaxis: {title: "Datas"},//range: [40, 160], 
+      yaxis: {title: "Valor (R$)"},  //range: [5, 16],
+      title: "Previsão para 30 dias"
+    };
+
+    // Display using Plotly
+    Plotly.newPlot("lstm_previsao_90", data, layout);
+  }
+
+  validacao();
+  previsao30();
+  previsao60();
+  previsao90();
+
+}
+
+google.charts.load('current', {'packages':['line']});
 function previsao_lstmss(response){
   var lstmprevisao = response.lstm_json;
   var lstm_previsao = lstmprevisao.previsao;
@@ -13,7 +153,7 @@ function previsao_lstmss(response){
 }
 
 function previsao_lstm(response){
-    google.charts.load('current', {'packages':['corechart']});
+    google.charts.load('current', {'packages':['line']});
     
     var lstmprevisao = response.lstm_json;
     var lstm_previsao = lstmprevisao.previsao;
@@ -26,6 +166,8 @@ function previsao_lstm(response){
     google.charts.setOnLoadCallback(lstmPrev30);
     google.charts.setOnLoadCallback(lstmPrev60);
     google.charts.setOnLoadCallback(lstmPrev90);
+
+
 
     function lstmReal() {
         var data = new google.visualization.DataTable();
@@ -47,8 +189,8 @@ function previsao_lstm(response){
         var options = {
           title: 'Preço de previsão e preço de fechamento',
           curveType: 'function',
-          width: 900,
-          height: 500,
+          width: 400,
+          height: 300,
 
           //legend: { position: 'bottom' },
           //explorer: { maxZoomOut: 6 },
@@ -73,6 +215,7 @@ function previsao_lstm(response){
     
         chart.draw(data, options);
     }
+  
 
     function lstmPrev30() {
 
@@ -124,6 +267,8 @@ function previsao_lstm(response){
         chart30.draw(data, options);
     }
     
+    
+    
     function lstmPrev60() {
 
       //console.log(monte_carlo[0].length)
@@ -174,6 +319,9 @@ function previsao_lstm(response){
       chart60.draw(data, options);
     }
     
+   
+    
+
     function lstmPrev90() {
 
       //console.log(monte_carlo[0].length)
@@ -202,7 +350,7 @@ function previsao_lstm(response){
         legend: { position: 'center' },
         //explorer: { maxZoomOut: 6 },
         width: 900,
-        height: 500,
+        height: 400,
         hAxis: {
           title: 'Dias'
         },
