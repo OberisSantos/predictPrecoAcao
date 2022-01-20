@@ -1,9 +1,9 @@
-
-var xArray = ['2022-01-19','2022-01-20','2022-01-21','2022-01-24'];
+/**
+var xArray = ['2022-01-19','2022-01-20','2022-01-21','2022-01-24', '2022-01-24'];
 var yArray = [100.470799,100.825146,101.050026,101.169745];
 
 var xArray2 = ['2022-01-19','2022-01-20','2022-01-21','2022-01-24'];
-var yArray2 = [102.470799,101.825146,101.050026,104.169745];
+var yArray2 = [102.470799,101.825146,101.050026,104.169745, 104.169745];
 // Define Data
 var data = [{
   x: xArray,
@@ -22,8 +22,94 @@ var layout = {
 };
 
 // Display using Plotly
-Plotly.newPlot("myPlot", data, layout);
- 
+Plotly.newPlot("real", data, layout);*/
+
+function criarTabelaReal(data, preco, previsao){
+  this.data = data;
+  this.preco = preco;
+  this.previsao = previsao;
+
+  var corpo_tabela = document.querySelector("#tablereal");
+  var fim = data.length - 1;
+  for(var i=fim; i >fim - 30; i-- ){
+    //formatar a data
+    var date = data[i];
+    var dataFormatada = date.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+    //Criar os elementos
+    var linha = document.createElement("tr");
+    var campo_data = document.createElement("td");
+    var campo_preco = document.createElement("td");
+    var campo_previsao = document.createElement("td");
+    //Criar estilo
+    //linha.className = "nomeclasse";
+
+
+    //Criar nós
+    var texto_data = document.createTextNode(dataFormatada);
+    var texto_preco = document.createTextNode(parseFloat(preco[i]).toFixed(4));
+    var texto_previsao = document.createTextNode(parseFloat(previsao[i]).toFixed(4));
+
+    //vincular os dados aos elementos
+    campo_data.appendChild(texto_data);
+    campo_preco.appendChild(texto_preco);
+    campo_previsao.appendChild(texto_previsao);
+
+    //vincular os elementos ao documento
+    corpo_tabela.appendChild(linha);
+    corpo_tabela.appendChild(campo_data);
+    corpo_tabela.appendChild(campo_preco);
+    corpo_tabela.appendChild(campo_previsao);
+
+  }
+}
+
+function criarTabelaFuturo(data, futuro, range, seletor){
+  this.data = data;
+  this.futuro = futuro;
+  this.range = range;
+  this.seletor = seletor;
+
+  var corpo_tabela = document.querySelector(seletor);
+  for(var i=0; i<range; i++ ){
+    //formatar a data
+    var date = data[i];
+    var dataFormatada = date.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+    //Criar os elementos
+    var linha = document.createElement("tr");
+    var campo_data = document.createElement("td");
+    var campo_futuro = document.createElement("td");
+    //Criar estilo
+    //linha.className = "nomeclasse";
+
+    //Criar nós
+    var texto_data = document.createTextNode(dataFormatada);
+    var texto_futuro = document.createTextNode(parseFloat(futuro[i].toFixed(4)));
+
+    //vincular os dados aos elementos
+    campo_data.appendChild(texto_data);
+    campo_futuro.appendChild(texto_futuro);
+
+    //vincular os elementos ao documento
+    corpo_tabela.appendChild(linha);
+    corpo_tabela.appendChild(campo_data);
+    corpo_tabela.appendChild(campo_futuro);
+
+  }
+}
+/**
+function tabela(){
+  var xArray = ['2022-01-19','2022-01-20','2022-01-21','2022-01-24', '2022-01-24'];
+  var yArray = [100.470799,100.825146,101.050026,101.169745, 101.050026];
+
+  var xArray2 = ['2022-01-19','2022-01-20','2022-01-21','2022-01-24'];
+  var yArray2 = [102.470799,101.825146,101.050026,104.169745, 104.169745];
+  criarTabelaReal(xArray, yArray, yArray2);
+
+  criarTabelaFuturo(xArray, yArray, 30, '#futuro30');
+  criarTabelaFuturo(xArray, yArray, 60, '#futuro60');
+}
+
+tabela(); */
  
 function keras(response){
 
@@ -42,29 +128,10 @@ function keras(response){
 
   var data_futuro = [];
   for(var i = 0; i < lstm_data_futuro.length; i++ ){
-    var date = new Date(lstm_data_futuro[i]);
+    var date = new Date(lstm_data_futuro[i]);    
     data_futuro.push(date);
   };
-  /**
-  var data_futuro30 = [];
-  for(var i = 0; i < 30; i++){
-    data_futuro30.push(data_futuro[i]);
-  }
-
-  var data_futuro60 = [];
-  for(var i = 0; i < 60; i++){
-    data_futuro60.push(data_futuro[i]);
-  }
-
-  var data_futuro90 = [];
-  for(var i = 0; i < 90; i++){
-    data_futuro90.push(data_futuro[i]);
-  }
- */
-
-  //var xArray = ['2022-01-19','2022-01-20','2022-01-21','2022-01-24'];
-  //var yArray = [100.470799,100.825146,101.050026,101.169745];
-
+  
   function validacao(){
     // Define Data
     var data = [
@@ -80,6 +147,9 @@ function keras(response){
 
     // Display using Plotly
     Plotly.newPlot("lstm_real", data, layout);
+
+    criarTabelaReal(data_passada, lstm_preco, lstm_previsao);
+
   }
 
   function previsao30(){
@@ -97,6 +167,8 @@ function keras(response){
 
     // Display using Plotly
     Plotly.newPlot("lstm_previsao_30", data, layout);
+
+    criarTabelaFuturo(data_futuro, lstm_futuro, 30, '#futuro30');
   }
 
   function previsao60(){
@@ -114,6 +186,8 @@ function keras(response){
 
     // Display using Plotly
     Plotly.newPlot("lstm_previsao_60", data, layout);
+
+    criarTabelaFuturo(data_futuro, lstm_futuro, 60, '#futuro60');
   }
 
   function previsao90(){
@@ -131,6 +205,8 @@ function keras(response){
 
     // Display using Plotly
     Plotly.newPlot("lstm_previsao_90", data, layout);
+
+    criarTabelaFuturo(data_futuro, lstm_futuro, 90, '#futuro90');
   }
 
   validacao();
@@ -139,7 +215,7 @@ function keras(response){
   previsao90();
 
 }
-
+/**
 google.charts.load('current', {'packages':['line']});
 function previsao_lstmss(response){
   var lstmprevisao = response.lstm_json;
@@ -372,7 +448,7 @@ function previsao_lstm(response){
       chart90.draw(data, options);
     }
 }
-
+*/
 
 /**
 var previsao_teste = ["{{ monte_carlo.previsao_teste|safe }}".replace('[', '' ).replace(']', '', ).split(',').map(Number)];
@@ -421,6 +497,7 @@ function monteCarloReal() {
     chart.draw(data, options);
 }
 **/
+/**
 function lstmPrev30() {
 
     //console.log(monte_carlo[0].length)
@@ -527,4 +604,4 @@ function lstmPrev90() {
     var chart90 = new google.visualization.LineChart(document.getElementById('monte_carlo_previsao_90'));
 
     chart90.draw(data, options);
-}
+}*/

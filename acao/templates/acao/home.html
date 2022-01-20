@@ -52,7 +52,7 @@
             </div>
         </div>
     </div>
-
+    <!--
     <div class="card">
         <div class="card-header">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -72,7 +72,7 @@
         </div>
 
         <div class="card-body">
-            <div class="container">
+            <div class="shadow-lg p-3 mb-2 bg-body rounded">
                 <div class="row">
                   <div class="col-1 align-self-start">
                   </div>
@@ -82,18 +82,52 @@
                   <div class="col-1 align-self-end">
                   </div>
                 </div>
-              </div>
+            </div>
           
         </div>
-        <div class="card-footer" id='tabela'>
-            Card footer
+
+        <div class="card-footer">
+            <div class="container mt-2">
+                <h5>Comparação entre preço de fechamento e preço previsto</h5>
+
+                <table class="table table-sm">
+                  <thead class="table-secondary">
+                    <tr>
+                      <th>Data</th>
+                      <th>Preço</th>
+                      <th>Previsto</th>
+                    </tr>
+                  </thead>
+                  <tbody id='real'>
+                    
+                  </tbody>
+                </table>
+                
+            </div>
+
+            <div class="container mt-2">
+                <h5>Previsão para os próximos 30 dias</h5>            
+                <table class="table table-sm">
+                  <thead class="table-secondary">
+                    <tr>
+                      <th>Data</th>
+                      <th>Futuro</th>
+                    </tr>
+                  </thead>
+                  <tbody id='futuro30'>
+                    
+                  </tbody>
+                </table>
+                
+            </div>
+
         </div>
-    </div>
+    </div>-->
 
     
 
 
-    <div class="row" id="prevTab" style="display: none;">
+    <div class="row" id="prevTab" style="display: flex;">
         <div class="card">
             <div class="card-header">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -112,43 +146,138 @@
                 </ul>
             </div>
 
-            <div class="card-body">
-              <h5 class="card-title">Special title treatment</h5>
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
+
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="real" role="tabpanel" >
+                    <div class="card-body">
+                        <div class="shadow-lg p-3 mb-2 bg-body rounded">
+                            <div class="row">
+                              <div class="col-12 align-self-center" style="width:1050px">
+                                <div id="lstm_real" style="width:100%; max-height:400px"></div>
+                                <!--<div id="monte_carlo_real" style="width: 1000px; height: 400px"></div>-->
+                              </div>
+                            </div>
+                        </div>                      
+                    </div>  
+                    <div class="card-footer">
+                        <div class="container mt-2">
+                            <h5>Comparação entre preço de fechamento e preço previsto</h5>
+            
+                            <table class="table table-sm">
+                              <thead class="table-secondary">
+                                <tr>
+                                  <th>Data</th>
+                                  <th>Preço</th>
+                                  <th>Previsto</th>
+                                </tr>
+                              </thead>
+                              <tbody id='tablereal'>
+                                
+                              </tbody>
+                            </table>
+                            
+                        </div>   
+                    </div>
+
+                </div>
+                <div class="tab-pane fade" id="dias30" role="tabpanel">
+                    <div class="card-body">
+                        <div class="shadow-lg p-3 mb-2 bg-body rounded">
+                            <div class="row">
+                              
+                              <div class="col-12 align-self-center" style="width:1050px">
+                                <div id="lstm_previsao_30" style="min-width:1000px; max-height:400px"></div>
+                                <!--<div id="monte_carlo_previsao_30" style="width: 1000px; height: 500px;"></div> -->
+                              </div>
+                              
+                            </div>
+                        </div>                      
+                    </div>
+                    <div class="card-footer">  
+                        <div class="container mt-2">
+                            <h5>Previsão para os próximos 30 dias</h5>
+                        
+                            <table class="table table-sm">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Futuro</th>
+                                    </tr>
+                                </thead>
+                                <tbody id='futuro30'>
+                                    
+                                </tbody>
+                            </table>
+                            
+                        </div>
+                    </div>
+       
+                </div>
+                <div class="tab-pane fade" id="dias60" role="tabpanel" aria-labelledby="contact-tab">
+                    <div class="card-body">
+                        <div class="shadow-lg p-3 mb-2 bg-body rounded">
+                            <div class="row">
+                              <div class="col-12 align-self-center" style="width:1050px">
+                                <div id="lstm_previsao_60" style="min-width:1000px; max-height:400px"></div>
+                                <!--<div id="monte_carlo_previsao_60" style="width: 1000px; height: 500px;"></div> -->
+                              </div>
+                            </div>
+                        </div>                      
+                    </div>  
+                    <div class="card-footer"> 
+                        <div class="container mt-2">
+                            <h5>Previsão para os próximos 60 dias</h5>
+                            <table class="table table-sm">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Futuro</th>
+                                    </tr>
+                                </thead>
+                                <tbody id='futuro60'>
+                                    
+                                </tbody>
+                            </table>                        
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="dias90" role="tabpanel" aria-labelledby="contact-tab">
+                    <div class="card-body">
+                        <div class="shadow-lg p-3 mb-2 bg-body rounded">
+                            <div class="row">
+                              <div class="col-12 align-self-center" style="width:1050px">
+                                <div id="lstm_previsao_90" style="width:100%; max-height:400px"></div>
+                                <!--<div id="monte_carlo_previsao_90" style="width: 1000px; height: 500px;"></div> -->
+                              </div>
+                            </div>
+                        </div>                      
+                    </div>  
+                    <div class="card-footer"> 
+                        <div class="container mt-2">
+                            <h5>Previsão para os próximos 90 dias</h5>        
+                            <table class="table table-sm">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Futuro</th>
+                                    </tr>
+                                </thead>
+                                <tbody id='futuro90'>
+                                    
+                                </tbody>
+                            </table>
+                            
+                        </div>
+                    </div>
+                </div>
+                
             </div>
+
+
         </div>
         
 
-        <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="real" role="tabpanel" >
-                
-                <!--<div id="monte_carlo_real" style="width: 1000px; height: 500px"></div>-->
-
-                <div id="lstm_real" style="width: 1000px; height: 500px"></div>
-
-            </div>
-            <div class="tab-pane fade" id="dias30" role="tabpanel">
-                <!--<div id="monte_carlo_previsao_30" style="width: 1000px; height: 500px;"></div> -->
-
-                <div id="lstm_previsao_30" style="width: 1000px; height: 500px;"></div>
-
-            </div>
-            <div class="tab-pane fade" id="dias60" role="tabpanel" aria-labelledby="contact-tab">           
-                <!-- <div id="monte_carlo_previsao_60" style="width: 1000px; height: 500px;"></div> -->
-
-                <div id="lstm_previsao_60" style="width: 1000px; height: 500px;"></div>
-
-            </div>
-            <div class="tab-pane fade" id="dias90" role="tabpanel" aria-labelledby="contact-tab">
-            
-                <!--<div id="monte_carlo_previsao_90" style="width: 1000px; height: 500px;"></div> -->
-
-                <div id="lstm_previsao_90" style="width: 1000px; height: 500px;"></div>
-
-            </div>
-            
-        </div>
+        
     </div>
         
 
