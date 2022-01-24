@@ -18,17 +18,18 @@ $("#buscaForm").submit(function(e){
 
         }, 
         success: function(response){
-            console.log('tudo certto');
             $("#load").hide();
             $("#prevTab").show();
-
             //previsao_mc(response);
             //previsao_lstm(response);
             keras(response);
         },
         error: function(response){
             $("#load").hide();
-        }
+            
+        },
+        
+
 
     }) 
 

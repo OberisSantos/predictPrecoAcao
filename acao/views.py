@@ -36,13 +36,20 @@ def home(request):
 
 def predict(request):
     indice = request.POST['indice']
-    indice = indice.strip()+'.SA'
-    codigo = [indice]  
-
+    acao = indice.upper()
+  
     #import sys 
     #sys.exit() #interroper
 
+    indice = indice.strip()+'.SA'
+    codigo = [indice]  
+
+    
+
     dataset =  get_acao(codigo)
+
+    #if(dataset.empty):
+      #return JsonResponse({"success":False, 'msg': 'Ativo não encontrado'}, status=500)
     
     #pevisao para algoritmo de Monte Carlos
     #prev_mc = previsao_monte_carlo(dataset)
@@ -50,7 +57,8 @@ def predict(request):
     #prev_mc = json.dumps(prev_mc)
 
     #return JsonResponse({"success":True, 'msg': 'Funciona', "mc_json":prev_mc}, status=200)
-    return JsonResponse({"success":True, "lstm_json":prev_lstm}, status=200)
+    return JsonResponse({"success":True, "lstm_json":prev_lstm, 'acao':acao}, status=200)
+    #return JsonResponse({"success":True}, status=200)
     
     #previsao para algoritmo do Keras LSTM
     #prev_keras_lstm = keras_lstm(dataset)
@@ -163,7 +171,7 @@ def previsao_monte_carlo(dataset):
 
 
 #previsao com rede neural recorrente lstm-keras
-def lstm(df, n_futuro=90, steps=3):	
+def lstm(df, n_futuro=90, steps=100):	
   df_original = df.reset_index() #resetar o index
   acoes = df_original.set_index(pd.DatetimeIndex(df_original['Date'].values))
 
@@ -183,7 +191,7 @@ def lstm(df, n_futuro=90, steps=3):
 
   #gerando dados de treino e teste
   steps = steps #considerar os 30 valores para prever o 31
-    
+  epochs = 100
   #Criar um função que retorna array para treinar e testar
   X_train, Y_train = create_df(train, steps)
   X_test, Y_test = create_df(test, steps)
@@ -214,7 +222,7 @@ def lstm(df, n_futuro=90, steps=3):
   '''
 
   #treinar o modelo sem stop
-  model.fit(X_train, Y_train, epochs=2, batch_size=steps, verbose=0, shuffle=False)
+  model.fit(X_train, Y_train, epochs=epochs, batch_size=steps, verbose=0, shuffle=False)
 
   #Salvar o modelo treinado
   model.save('acao/media/lstm/modeloTreinado.h5')
@@ -253,7 +261,7 @@ def lstm(df, n_futuro=90, steps=3):
     os.remove('acao/media/lstm/modeloTreinado.h5')
 
   #treinar novamenete o modelo com os demais dados
-  model.fit(X_test, Y_test, epochs=2, batch_size=steps, verbose=0, shuffle=False)
+  model.fit(X_test, Y_test, epochs=epochs, batch_size=steps, verbose=0, shuffle=False)
 
   #Realizar previsão para os dias futuro
 

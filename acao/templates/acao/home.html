@@ -13,6 +13,15 @@
             top: 60px;   /* chartArea top  */
             left: 180px; /* chartArea left */
         }
+
+        table#highlight>tbody>tr:hover {
+            background-color: #2E5C78;
+        }
+
+        table#highlight>tbody>tr {
+            color: white;
+        }
+
     </style>
     
 {% endblock %}
@@ -36,12 +45,18 @@
     
                     
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-warning btn-sm" style="font-weight: 500;">Buscar</button>
+                            <button type="submit" class="btn btn-sm" style="font-weight: 500; background-color:rgb(150, 99, 50); color:white;">Buscar</button>
                         </div>
                     
                     </form>
                 </p>
-                <div id='load' style="display: none;">
+                <div id='msg' style="display: none;">
+                    <p class="card-text">
+                        
+                    </p>
+                    
+                </div>
+                <div id='load' style="display: none">
                     <p class="card-text">
                         Aguarde! estamos realizando a previsão!
                     </p>
@@ -127,7 +142,7 @@
     
 
 
-    <div class="row" id="prevTab" style="display: flex;">
+    <div class="row" id="prevTab" style="display: none;">
         <div class="card">
             <div class="card-header">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -145,7 +160,9 @@
                     </li>
                 </ul>
             </div>
-
+            <div class="shadow-lg p-3 bg-body rounded" id='acao' style="color:rgb(114, 38, 23); font-weight: 800;">
+                
+            </div>
 
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="real" role="tabpanel" >
@@ -163,12 +180,15 @@
                         <div class="container mt-2">
                             <h5>Comparação entre preço de fechamento e preço previsto</h5>
             
-                            <table class="table table-sm">
+                            <table class="table table-sm" id='highlight'>
                               <thead class="table-secondary">
+                                
                                 <tr>
-                                  <th>Data</th>
-                                  <th>Preço</th>
-                                  <th>Previsto</th>
+                                  <th>Dia</th>
+                                  <th>Preço (R$)</th>
+                                  <th>Previsto (R$)</th>
+                                  <th>Diferença (R$)</th>
+                                  <th>Diferença (%)</th>
                                 </tr>
                               </thead>
                               <tbody id='tablereal'>
@@ -201,10 +221,10 @@
                                 <thead class="table-secondary">
                                     <tr>
                                         <th>Data</th>
-                                        <th>Futuro</th>
+                                        <th>Futuro (R$)</th>
                                     </tr>
                                 </thead>
-                                <tbody id='futuro30'>
+                                <tbody class="" id='futuro30'>
                                     
                                 </tbody>
                             </table>
@@ -231,7 +251,7 @@
                                 <thead class="table-secondary">
                                     <tr>
                                         <th>Data</th>
-                                        <th>Futuro</th>
+                                        <th>Futuro (R$)</th>
                                     </tr>
                                 </thead>
                                 <tbody id='futuro60'>
@@ -259,7 +279,7 @@
                                 <thead class="table-secondary">
                                     <tr>
                                         <th>Data</th>
-                                        <th>Futuro</th>
+                                        <th>Futuro (R$)</th>
                                     </tr>
                                 </thead>
                                 <tbody id='futuro90'>
