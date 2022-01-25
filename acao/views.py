@@ -4,69 +4,39 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from django.shortcuts import render
 import pandas as pd
 import numpy as np
-
 import json
 from django.http import JsonResponse
-
 import yfinance as yf
 import pandas_datareader as pdr
-
-from scipy import stats
-
 from sklearn.metrics import  mean_absolute_error, mean_squared_error
-
 from sklearn.model_selection import  train_test_split
 from math import sqrt
-
 from keras.models import  Sequential, load_model
 from keras.layers import Dense, Dropout, LSTM
 from sklearn.preprocessing import StandardScaler
-
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
 
-from datetime import date
-
-
-
-
-# Create your views here.
 
 def home(request):
     return render(request, 'acao/home.html', {})
 
 def predict(request):
-    indice = request.POST['indice']
-    acao = indice.upper()
-  
-    #import sys 
-    #sys.exit() #interroper
+  indice = request.POST['indice']
+  acao = indice.upper()
 
-    indice = indice.strip()+'.SA'
-    codigo = [indice]  
-
-    
-
+  indice = indice.strip()+'.SA'
+  codigo = [indice]
+  try:
     dataset =  get_acao(codigo)
 
-    #if(dataset.empty):
-      #return JsonResponse({"success":False, 'msg': 'Ativo não encontrado'}, status=500)
+    if(dataset.empty):
+      return JsonResponse({"error":True, 'msg': 'Ativo não encontrado'}, status=500)    
     
-    #pevisao para algoritmo de Monte Carlos
-    #prev_mc = previsao_monte_carlo(dataset)
     prev_lstm = lstm(dataset)
-    #prev_mc = json.dumps(prev_mc)
-
-    #return JsonResponse({"success":True, 'msg': 'Funciona', "mc_json":prev_mc}, status=200)
+  
     return JsonResponse({"success":True, "lstm_json":prev_lstm, 'acao':acao}, status=200)
-    #return JsonResponse({"success":True}, status=200)
-    
-    #previsao para algoritmo do Keras LSTM
-    #prev_keras_lstm = keras_lstm(dataset)
-    #prev_keras_lstm = json.dumps(prev_keras_lstm)
-    #mc_real = prev_mc['valor_real']
-    #real = json.dumps(monte_carlo_real)
-    
-    #return render(request, 'acao/home.html', context={"mc_json":json.dumps(prev_mc), 'lstm_json':json.dumps(prev_keras_lstm)}) #usar esse modelo
+  except:
+    return JsonResponse({"error":True, 'msg': 'Ativo não encontrado'}, status=500)
 
 
 def get_acao(codigo=[], periodo = 5):#padrão de 10 anos para o período
@@ -76,99 +46,6 @@ def get_acao(codigo=[], periodo = 5):#padrão de 10 anos para o período
     df[acao] = yf.Ticker(acao).history(period = (str(periodo)+'y'))['Close']
     
   return df
-
-
-def previsao_monte_carlo(dataset):
-    #dataset = dataset.drop('Date', axis=1)
-    dataset['Close'] = dataset
-
-    dataset = (dataset['Close'])
-   
-    #dataset = dataset.to_list() #converter para lista
-    #dataset = pd.DataFrame(dataset)
-    dias_a_frente = 90
-    simulacoes = 1000
-
-    dataset_normalizado = dataset.copy()
-    #print(dataset.iloc[0][1])
-   
-    tamanho_dataset = len(dataset)
-    
-    for i in range(tamanho_dataset):        
-        dataset_normalizado[i] = dataset[i] / dataset[0]
-
-    
-    dataset_normalizado = dataset_normalizado
-    
-
-    dataset_taxa_retorno = np.log(1 + dataset_normalizado.pct_change())
-    dataset_taxa_retorno.fillna(0, inplace=True)
-    media = dataset_taxa_retorno.mean()
-    variancia = dataset_taxa_retorno.var()
-
-    drift = media - (0.5 * variancia)
-    desvio_padrao = dataset_taxa_retorno.std()
-
-    Z = stats.norm.ppf(np.random.rand(dias_a_frente, simulacoes)) #numeros aleatorios com multiplicador do desvio padrão
-    retorno_diarios = np.exp(drift + desvio_padrao * Z)
-
-    previsoes = np.zeros_like(retorno_diarios) #criar uma matriz com zeros
-
-    previsao_teste = previsoes.copy()
-    
-    previsoes[0] = dataset[-1] #iniciar a previsao com u último valor 
-
-   
-    #calculo das previsoes
-    for dia in range(1, dias_a_frente): #a previsao será com base no dia anterior multiplicado pelo retorno de cada dia.
-        previsoes[dia] = previsoes[dia - 1] * retorno_diarios[dia]
-    previsao = previsoes.T.tolist()
-
-    #testar para escolher a melhor previsão
-    previsao_teste[0] = dataset[-dias_a_frente]
-    
-
-    for dia in range(1, dias_a_frente): #a previsao será com base no dia anterior multiplicado pelo retorno de cada dia.
-        previsao_teste[dia] = previsao_teste[dia - 1] * retorno_diarios[dia]
-    #p_teste = previsao_teste.T.tolist()
-    #melhor = melhor_simulacao_monte_carlo(previsao_teste.T, dataset)
-    previsao_teste = pd.DataFrame(previsao_teste)
-    #previsao para teste
-   
-    #dataset_teste = dataset.reset_index(level=None, drop=True).copy()
-    dataset_teste = dataset.copy()
-    dataset_teste = dataset_teste.iloc[-len(previsao_teste):]
-    #inicio = dataset_teste.index[-len(previsao_teste)] 
-  
-    erros = [ ]
-
-    for i in range(len(previsao_teste.T)):
-        simulacao = previsao_teste[i][0:len(dataset_teste)]
-        erros.append(mean_absolute_error(dataset_teste, simulacao))
-
-    erro_menor = min(erros)
-    erro_menor_index = erros.index(erro_menor)
-
-    previsao_teste = previsao_teste[erro_menor_index].to_list()
-   
-
-    data_futura = pd.date_range(start = date.today(), periods = dias_a_frente, freq ='B') 
-    previsao_futura = pd.DataFrame(data_futura)
-    #previsao_futura['Previsao'] = pd.DataFrame(previsao[erro_menor_index])
-    previsao_futura.columns = ['Date']
-    previsao_futura['Previsao'] = pd.DataFrame(previsao[erro_menor_index])
-    #previsao_futura.set_index('Date', inplace=True)
-    
-
-    dados = {
-        'erro': erro_menor,
-        'previsao_futura': previsao_futura['Previsao'].to_list(),
-        'previsao_teste': previsao_teste,
-        'valor_real': dataset_teste.to_list()
-    }
-    
-    return dados
-
 
 #previsao com rede neural recorrente lstm-keras
 def lstm(df, n_futuro=90, steps=100):	
@@ -202,7 +79,6 @@ def lstm(df, n_futuro=90, steps=100):
 
   #montar as camadas da redes
   model = Sequential() #return_sequences=True - cria uma memomira para o modelo
-  #LSTM tipo de rede recorrente - Memoria de Longo prazo
 
   model.add(LSTM(35, return_sequences=True, input_shape=(steps, 1))) #o 35 é a quantidade de neuronios
   model.add(LSTM(35, return_sequences=True)) #criar mais uma camada
@@ -212,14 +88,6 @@ def lstm(df, n_futuro=90, steps=100):
 
   #compilar o modelo
   model.compile(optimizer='adam', loss='mse')
-
-  #stop no treinamento do modelo quando não tiver melhora
-  '''reduce_lr = ReduceLROnPlateau(monitor='loss', factor=0.2,
-                        patience=10, min_lr=0.001)
-  es = EarlyStopping(monitor='loss', min_delta=1e-10, patience=15)
-  #treinar o modelo com stop
-  model.fit(X_train, Y_train, epochs=100, batch_size=30, verbose=0, callbacks=[es, reduce_lr])
-  '''
 
   #treinar o modelo sem stop
   model.fit(X_train, Y_train, epochs=epochs, batch_size=steps, verbose=0, shuffle=False)
@@ -242,16 +110,6 @@ def lstm(df, n_futuro=90, steps=100):
   df_validacao.rename(columns={0: 'previsao'}, inplace=True)
   df_validacao['data'] = df_close.index[-len(Y_real):]
   df_validacao['preco'] = Y_real
-
-  #validacao = metrica(df_validacao)
-
-  #continuar treinando o modelo como os dados usado para testar e assim prever os valores futuro
-  '''checkpoint_filepath = '/tmp/checkpoint' #armazenar temporario
-  model_checkpoint_callback = ModelCheckpoint(
-    filepath=checkpoint_filepath, save_weights_only=True, monitor='loss', mode='max', save_best_only=True)
-  '''
-  #treinar novamenete o modelo com os demais dados
-  #model.fit(X_test, Y_test, epochs=100, batch_size=30, verbose=0)
 
   #Reload model
   model = load_model('acao/media/lstm/modeloTreinado.h5')

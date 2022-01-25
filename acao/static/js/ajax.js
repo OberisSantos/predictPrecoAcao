@@ -25,10 +25,9 @@ $("#buscaForm").submit(function(e){
             keras(response);
         },
         error: function(response){
-            $("#load").hide();
+            //$("#load").hide();
             
-        },
-        
+        },     
 
 
     }) 
