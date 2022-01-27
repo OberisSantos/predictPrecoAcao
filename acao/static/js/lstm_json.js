@@ -56,8 +56,7 @@ function criarTabelaReal(data, preco, previsao){
     var texto_diferenca = document.createTextNode(diferenca);
     var porcentagem = parseFloat((diferenca * 100) /  preco[i]).toFixed(2);
     var texto_porcentagem = document.createTextNode(porcentagem);
-    console.log(porcentagem);
-
+    
     //vincular os dados aos elementos
     campo_data.appendChild(texto_data);
     campo_preco.appendChild(texto_preco);
@@ -160,9 +159,9 @@ function keras(response){
     ];
     // Define Layout
     var layout = {
-      xaxis: {title: "Datas"},//range: [40, 160], 
-      yaxis: {title: "Valor (R$)"},  //range: [5, 16],
-      title: "Preço de previsão e preço de fechamento",
+      xaxis: {title: "Tempo (dias)"},//range: [40, 160], 
+      yaxis: {title: "Preço (R$)"},  //range: [5, 16],
+      title: "Preço real x previsto",
       width:1000
     };
 
@@ -181,8 +180,8 @@ function keras(response){
     ];
     // Define Layout
     var layout = {
-      xaxis: {title: "Datas", range: [data_passada[0], data_futuro[29]]},//range: [40, 160], 
-      yaxis: {title: "Valor (R$)"},  //range: [5, 16],
+      xaxis: {title: "Período", range: [data_passada[0], data_futuro[29]]},//range: [40, 160], 
+      yaxis: {title: "Preço (R$)"},  //range: [5, 16],
       title: "Previsão para 30 dias",
       width:1000
     };
@@ -201,8 +200,8 @@ function keras(response){
     ];
     // Define Layout
     var layout = {
-      xaxis: {title: "Datas", range: [data_passada[0], data_futuro[59]]},//range: [40, 160], 
-      yaxis: {title: "Valor (R$)"},  //range: [5, 16],
+      xaxis: {title: "Período", range: [data_passada[0], data_futuro[59]]},//range: [40, 160], 
+      yaxis: {title: "Preço (R$)"},  //range: [5, 16],
       title: "Previsão para 60 dias",
       width:1000
     };
@@ -221,8 +220,8 @@ function keras(response){
     ];
     // Define Layout
     var layout = {
-      xaxis: {title: "Datas"},//range: [40, 160], 
-      yaxis: {title: "Valor (R$)"},  //range: [5, 16],
+      xaxis: {title: "Período"},//range: [40, 160], 
+      yaxis: {title: "Preço (R$)"},  //range: [5, 16],
       title: "Previsão para 90 dias",
       width:1000
     };
