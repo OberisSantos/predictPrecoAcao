@@ -28,15 +28,15 @@ def predict(request):
   codigo = [indice]
   try:
     dataset =  get_acao(codigo)
-
+    
     if(dataset.empty):
-      return JsonResponse({"error":True, 'msg': 'Ativo não encontrado'}, status=500)    
+      return JsonResponse({"success":False, 'msg': 'O ativo pesquisado ' + acao + ' não foi encontrado'}, status=200)    
     
     prev_lstm = lstm(dataset)
   
     return JsonResponse({"success":True, "lstm_json":prev_lstm, 'acao':acao}, status=200)
   except:
-    return JsonResponse({"error":True, 'msg': 'Ativo não encontrado'}, status=500)
+    return JsonResponse({"success":False, 'msg': 'Houve um erro, tenta novamente!'}, status=200)
 
 
 def get_acao(codigo=[], periodo = 5):#padrão de 10 anos para o período
@@ -44,7 +44,7 @@ def get_acao(codigo=[], periodo = 5):#padrão de 10 anos para o período
   df = pd.DataFrame()
   for acao in codigo:
     df[acao] = yf.Ticker(acao).history(period = (str(periodo)+'y'))['Close']
-    
+
   return df
 
 #previsao com rede neural recorrente lstm-keras
@@ -93,7 +93,7 @@ def lstm(df, n_futuro=90, steps=100):
   model.fit(X_train, Y_train, epochs=epochs, batch_size=steps, verbose=0, shuffle=False)
 
   #Salvar o modelo treinado
-  model.save('acao/media/lstm/modeloTreinado.h5')
+  #model.save('acao/media/lstm/modeloTreinado.h5')
 
   #Realizar uma previsão para validar o modelo
   previsao_validacao = model.predict(X_test)
@@ -112,11 +112,11 @@ def lstm(df, n_futuro=90, steps=100):
   df_validacao['preco'] = Y_real
 
   #Reload model
-  model = load_model('acao/media/lstm/modeloTreinado.h5')
+  #model = load_model('acao/media/lstm/modeloTreinado.h5')
   
   #remover o modelo salvo
-  if os.path.exists('acao/media/lstm/modeloTreinado.h5'):
-    os.remove('acao/media/lstm/modeloTreinado.h5')
+  #if os.path.exists('acao/media/lstm/modeloTreinado.h5'):
+    #os.remove('acao/media/lstm/modeloTreinado.h5')
 
   #treinar novamenete o modelo com os demais dados
   model.fit(X_test, Y_test, epochs=epochs, batch_size=steps, verbose=0, shuffle=False)
@@ -130,10 +130,12 @@ def lstm(df, n_futuro=90, steps=100):
     x = prediction_list[-steps:]
     x = np.array(x)
     x = x.reshape((1, steps, 1))
+    #limpar os dados
+    model.reset_states()
     out = model.predict(x, batch_size=steps)[0][0] #pegar o valor previsto
     prediction_list = np.append(prediction_list, out) #adicionar o valor previsto no final da lista
     #limpar os dados
-    model.reset_states()
+    #model.reset_states()
 
   predict_futuro = prediction_list[steps:] #carregar somenente os n_futuro valores previsto
 

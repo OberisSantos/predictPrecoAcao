@@ -16,11 +16,25 @@
         table#highlight>tbody>tr:hover {
             background-color: #2E5C78;
         }
+        
         table#highlight>tbody>tr {
             color: white;
         }
-
+        table{
+            border-collapse: collapse;
+            border-spacing: 0;
+            width: 100%;
+        }
+        th{
+            background-color: rgb(180, 204, 152);
+        }
+        th, td{
+            padding: 5px 20px;
+            border-bottom: 1px solid rgb(161, 160, 160);
+        }
+        
     </style>
+    
     
 {% endblock %}
 
@@ -44,6 +58,10 @@
                         </div>                    
                     </form>
                 </p>
+                
+                <div id='msg' class="alert alert-danger" role="alert" style="display: none">
+                    
+                </div>
                 
                 <div id='load' style="display: none">
                     <p class="card-text">
@@ -93,20 +111,9 @@
                     <div class="card-footer">
                         <div class="container mt-2">
                             <h5>Comparação entre preço de fechamento e preço previsto</h5>
-            
-                            <table class="table table-sm" id='highlight'>
-                              <thead class="table-secondary">                                
-                                <tr>
-                                  <th>Dia</th>
-                                  <th>Preço (R$)</th>
-                                  <th>Previsto (R$)</th>
-                                  <th>Diferença (R$)</th>
-                                  <th>Diferença (%)</th>
-                                </tr>
-                              </thead>
-                              <tbody id='tablereal'>                                
-                              </tbody>
-                            </table>                            
+                            
+                            <div id='tablereal'></div>
+                                                     
                         </div>   
                     </div>
 
@@ -127,17 +134,9 @@
                     <div class="card-footer">  
                         <div class="container mt-2">
                             <h5>Previsão para os próximos 30 dias</h5>
-                        
-                            <table class="table table-sm">
-                                <thead class="table-secondary">
-                                    <tr>
-                                        <th>Data</th>
-                                        <th>Futuro (R$)</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="" id='futuro30'>                                    
-                                </tbody>
-                            </table>                            
+                            
+                            <div id=futuro30></div>
+                                                      
                         </div>
                     </div>       
                 </div>
@@ -155,16 +154,9 @@
                     <div class="card-footer"> 
                         <div class="container mt-2">
                             <h5>Previsão para os próximos 60 dias</h5>
-                            <table class="table table-sm">
-                                <thead class="table-secondary">
-                                    <tr>
-                                        <th>Data</th>
-                                        <th>Futuro (R$)</th>
-                                    </tr>
-                                </thead>
-                                <tbody id='futuro60'>                                    
-                                </tbody>
-                            </table>                        
+
+                            <div id=futuro60></div>       
+
                         </div>
                     </div>
                 </div>
@@ -182,16 +174,9 @@
                     <div class="card-footer"> 
                         <div class="container mt-2">
                             <h5>Previsão para os próximos 90 dias</h5>        
-                            <table class="table table-sm">
-                                <thead class="table-secondary">
-                                    <tr>
-                                        <th>Data</th>
-                                        <th>Futuro (R$)</th>
-                                    </tr>
-                                </thead>
-                                <tbody id='futuro90'>                                    
-                                </tbody>
-                            </table>                            
+                            
+                            <div id=futuro90></div> 
+
                         </div>
                     </div>
                 </div>                

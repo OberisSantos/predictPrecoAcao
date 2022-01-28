@@ -11,26 +11,36 @@ $("#buscaForm").submit(function(e){
         url: url,
         data: serializeData,
         beforeSend: function () {
-            //Aqui adicionas o loader           
+
             $('#load').show();
             
-            //$("#load").text('Realizando a previsao');
-
         }, 
         success: function(response){
             $("#load").hide();
-            $("#prevTab").show();
-            //previsao_mc(response);
-            //previsao_lstm(response);
-            keras(response);
+
+            if(response.success == false){
+                $("#msg").show();
+                document.getElementById("msg").textContent = response.msg;
+                $("#erro").show();
+                
+                setTimeout(function () {
+                $("#msg").hide();
+                }, 3000);
+
+            }else{
+                $("#prevTab").show();
+                keras(response);
+            }
         },
-        error: function(response){
-            //$("#load").hide();
-            
-        },     
-
-
+        error: function(response) { 
+            $("#load").hide();
+            $("#msg").show();
+            document.getElementById("msg").textContent = response.msg;
+            $("#erro").show();
+            setTimeout(function () {
+            $("#msg").hide();
+            }, 3000);
+        },   
     }) 
-
 });
 

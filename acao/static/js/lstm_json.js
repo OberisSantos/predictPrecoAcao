@@ -1,127 +1,113 @@
-/*var xArray = ['2022-01-19','2022-01-20','2022-01-21','2022-01-24', '2022-01-24'];
-var yArray = [100.470799,100.825146,101.050026,101.169745];
 
-var xArray2 = ['2022-01-19','2022-01-20','2022-01-21','2022-01-24'];
-var yArray2 = [102.470799,101.825146,101.050026,104.169745, 104.169745];
-// Define Data
-var data = [{
-  x: xArray,
-  y: yArray,
-  mode:"lines"
-}];
-//var data = [
-  //{x: xArray, y: yArray, mode:"lines", name:'Antes'},
-  //{x: xArray2, y: yArray2, mode:"lines", name:'depois'}
-//];
-// Define Layout
-var layout = {
-  xaxis: {title: "Datas", range: [xArray[0], xArray[2]]},//range: [40, 160], 
-  yaxis: {title: "Valor"},  //range: [5, 16],
-  title: "House Prices vs. Size"
-};
+function criarTabelaReal(preco, previsao){
+  alvo = document.getElementById('tablereal');
+  alvo.innerText = "";
 
-// Display using Plotly
-Plotly.newPlot("real", data, layout);
-*/
+  let table = document.createElement('table');
+  let thead = document.createElement('thead');
+  let tbody = document.createElement('tbody');
+  table.appendChild(thead);
+  table.appendChild(tbody);
 
-function criarTabelaReal(data, preco, previsao){
-  var data = data;
-  var preco = preco;
-  var previsao = previsao;
+  document.getElementById('tablereal').appendChild(table);
 
-  var corpo_tabela = document.querySelector("#tablereal");
-  //var fim = data.length - 1;
-  //for(var i=fim; i >fim - 30; i-- ){
-  for(var i=0; i < 90; i++ ){
-    //formatar a data
-    //var date = data[i];
-    //var dataFormatada = date.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
-    //Criar os elementos
-    var linha = document.createElement("tr");
-    var campo_data = document.createElement("td");
-    var campo_preco = document.createElement("td");
-    var campo_previsao = document.createElement("td");
-    var campo_diferenca = document.createElement("td");
-    var campo_porcentagem = document.createElement("td");
-    //Criar estilo
-    //corpo_tabela.className = "table";
+  let head_row = document.createElement('tr');
+  let heading_1 = document.createElement('th');
+  heading_1.innerHTML = "Dia";
+  let heading_2 = document.createElement('th');
+  heading_2.innerHTML = "Preço (R$)";
+  let heading_3 = document.createElement('th');
+  heading_3.innerHTML = "Previsto (R$)";
+  let heading_4 = document.createElement('th');
+  heading_4.innerHTML = "Diferença (R$)";
+  let heading_5 = document.createElement('th');
+  heading_5.innerHTML = "Diferença (%)";
 
+  head_row.appendChild(heading_1);
+  head_row.appendChild(heading_2);
+  head_row.appendChild(heading_3);
+  head_row.appendChild(heading_4);
+  head_row.appendChild(heading_5);
+  thead.appendChild(head_row);
 
-    //Criar nós
-    //var texto_data = document.createTextNode(dataFormatada);
-    var texto_data = document.createTextNode(i+1);
-    var texto_preco = document.createTextNode(parseFloat(preco[i]).toFixed(4));
-    var texto_previsao = document.createTextNode(parseFloat(previsao[i]).toFixed(4));
-    var diferenca = Math.abs(parseFloat(preco[i] - previsao[i]).toFixed(4));
-    var texto_diferenca = document.createTextNode(diferenca);
-    var porcentagem = parseFloat((diferenca * 100) /  preco[i]).toFixed(2);
-    var texto_porcentagem = document.createTextNode(porcentagem);
+  for(var i=0; i<90; i++){
+    let head_row_2 = document.createElement('tr');
+    let head_row_2_data_1 = document.createElement('td');
+    head_row_2_data_1.innerHTML = i+1;
+    let head_row_2_data_2 = document.createElement('td');
+    head_row_2_data_2.innerHTML = parseFloat(preco[i]).toFixed(4);
+    let head_row_2_data_3 = document.createElement('td');
+    head_row_2_data_3.innerHTML = parseFloat(previsao[i]).toFixed(4);
     
-    //vincular os dados aos elementos
-    campo_data.appendChild(texto_data);
-    campo_preco.appendChild(texto_preco);
-    campo_previsao.appendChild(texto_previsao);
-    campo_diferenca.appendChild(texto_diferenca);
-    campo_porcentagem.appendChild(texto_porcentagem);
+    let  diferenca = Math.abs(parseFloat(preco[i] - previsao[i]).toFixed(4));
+    let head_row_2_data_4= document.createElement('td');
+    head_row_2_data_4.innerHTML = diferenca;
 
-    //vincular os elementos ao documento
-    corpo_tabela.appendChild(linha);
-    corpo_tabela.appendChild(campo_data);
-    corpo_tabela.appendChild(campo_preco);
-    corpo_tabela.appendChild(campo_previsao);
-    corpo_tabela.appendChild(campo_diferenca);
-    corpo_tabela.appendChild(campo_porcentagem);
-
+    let porcentagem = parseFloat((diferenca * 100) /  preco[i]).toFixed(2);
+    let head_row_2_data_5 = document.createElement('td');
+    head_row_2_data_5.innerHTML = porcentagem;
+    
+    head_row_2.appendChild(head_row_2_data_1);
+    head_row_2.appendChild(head_row_2_data_2);
+    head_row_2.appendChild(head_row_2_data_3);
+  
+    head_row_2.appendChild(head_row_2_data_4);
+    head_row_2.appendChild(head_row_2_data_5);
+  
+    tbody.appendChild(head_row_2);
   }
+
 }
+
 
 function criarTabelaFuturo(data, futuro, range, seletor){
-  var data = data;
-  var futuro = futuro;
-  var range = range;
-  var seletor = seletor;
+  alvo = document.getElementById(seletor);
+  alvo.innerText = "";
 
-  var corpo_tabela = document.querySelector(seletor);
-  for(var i=0; i<range; i++ ){
-    //formatar a data
+  let table = document.createElement('table');
+  let thead = document.createElement('thead');
+  let tbody = document.createElement('tbody');
+  table.appendChild(thead);
+  table.appendChild(tbody);
+
+  document.getElementById(seletor).appendChild(table);
+
+  let head_row = document.createElement('tr');
+  let heading_1 = document.createElement('th');
+  heading_1.innerHTML = "Dia";
+  let heading_2 = document.createElement('th');
+  heading_2.innerHTML = "Data";
+  let heading_3 = document.createElement('th');
+  heading_3.innerHTML = "Futuro (R$)";
+  
+  head_row.appendChild(heading_1);
+  head_row.appendChild(heading_2);
+  head_row.appendChild(heading_3);
+  thead.appendChild(head_row);
+
+  for(var i=0; i<range; i++){
+    let head_row_2 = document.createElement('tr');
+    let head_row_2_data_1 = document.createElement('td');
+    head_row_2_data_1.innerHTML = i+1;
+
     var date = data[i];
     var dataFormatada = date.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
-    //Criar os elementos
-    var linha = document.createElement("tr");
-    var campo_data = document.createElement("td");
-    var campo_futuro = document.createElement("td");
-    //Criar estilo
-    linha.className = "table";
 
-    //Criar nós
-    var texto_data = document.createTextNode(dataFormatada);
-    var texto_futuro = document.createTextNode(parseFloat(futuro[i].toFixed(4)));
+    let head_row_2_data_2 = document.createElement('td');
+    head_row_2_data_2.innerHTML = dataFormatada;
 
-    //vincular os dados aos elementos
-    campo_data.appendChild(texto_data);
-    campo_futuro.appendChild(texto_futuro);
-
-    //vincular os elementos ao documento
-    corpo_tabela.appendChild(linha);
-    corpo_tabela.appendChild(campo_data);
-    corpo_tabela.appendChild(campo_futuro);
-
+    let head_row_2_data_3 = document.createElement('td');
+    head_row_2_data_3.innerHTML = parseFloat(futuro[i].toFixed(4));
+    
+    head_row_2.appendChild(head_row_2_data_1);
+    head_row_2.appendChild(head_row_2_data_2);
+    head_row_2.appendChild(head_row_2_data_3);
+  
+    tbody.appendChild(head_row_2);
   }
-}
-/*
-function tabela(){
-  var xArray = ['2022-01-19','2022-01-20','2022-01-21','2022-01-24', '2022-01-24'];
-  var yArray = [100.470799,100.825146,101.050026,101.169745, 101.050026];
-
-  var xArray2 = ['2022-01-19','2022-01-20','2022-01-21','2022-01-24'];
-  var yArray2 = [102.470799,101.825146,101.050026,104.169745, 104.169745];
-  criarTabelaReal(xArray, yArray, yArray2);
-
-  //criarTabelaFuturo(xArray, yArray, 30, '#futuro30');
-  //criarTabelaFuturo(xArray, yArray, 60, '#futuro60');
+  
 }
 
-tabela(); */
 function keras(response){
 
   var lstmprevisao = response.lstm_json;
@@ -148,19 +134,15 @@ function keras(response){
   };
   
   function validacao(){
-    // Define Data
-    /*var data = [
-      {x: data_passada, y: lstm_previsao, mode:"lines", name:'previsão'},
-      {x: data_passada, y: lstm_preco, mode:"lines", name:'preço'}
-    ]; */
+    
     var data = [
       {y: lstm_previsao, mode:"lines", name:'previsão'},
       {y: lstm_preco, mode:"lines", name:'preço'}
     ];
     // Define Layout
     var layout = {
-      xaxis: {title: "Tempo (dias)"},//range: [40, 160], 
-      yaxis: {title: "Preço (R$)"},  //range: [5, 16],
+      xaxis: {title: "Tempo (dias)"},
+      yaxis: {title: "Preço (R$)"},  
       title: "Preço real x previsto",
       width:1000
     };
@@ -168,7 +150,7 @@ function keras(response){
     // Display using Plotly
     Plotly.newPlot("lstm_real", data, layout);
 
-    criarTabelaReal(data_passada, lstm_preco, lstm_previsao);
+    criarTabelaReal(lstm_preco, lstm_previsao);
 
   }
 
@@ -180,8 +162,8 @@ function keras(response){
     ];
     // Define Layout
     var layout = {
-      xaxis: {title: "Período", range: [data_passada[0], data_futuro[29]]},//range: [40, 160], 
-      yaxis: {title: "Preço (R$)"},  //range: [5, 16],
+      xaxis: {title: "Período", range: [data_passada[0], data_futuro[29]]}, 
+      yaxis: {title: "Preço (R$)"},  
       title: "Previsão para 30 dias",
       width:1000
     };
@@ -189,7 +171,7 @@ function keras(response){
     // Display using Plotly
     Plotly.newPlot("lstm_previsao_30", data, layout);
 
-    criarTabelaFuturo(data_futuro, lstm_futuro, 30, '#futuro30');
+    criarTabelaFuturo(data_futuro, lstm_futuro, 30, 'futuro30');
   }
 
   function previsao60(){
@@ -200,8 +182,8 @@ function keras(response){
     ];
     // Define Layout
     var layout = {
-      xaxis: {title: "Período", range: [data_passada[0], data_futuro[59]]},//range: [40, 160], 
-      yaxis: {title: "Preço (R$)"},  //range: [5, 16],
+      xaxis: {title: "Período", range: [data_passada[0], data_futuro[59]]}, 
+      yaxis: {title: "Preço (R$)"},  
       title: "Previsão para 60 dias",
       width:1000
     };
@@ -209,7 +191,7 @@ function keras(response){
     // Display using Plotly
     Plotly.newPlot("lstm_previsao_60", data, layout);
 
-    criarTabelaFuturo(data_futuro, lstm_futuro, 60, '#futuro60');
+    criarTabelaFuturo(data_futuro, lstm_futuro, 60, 'futuro60');
   }
 
   function previsao90(){
@@ -220,8 +202,8 @@ function keras(response){
     ];
     // Define Layout
     var layout = {
-      xaxis: {title: "Período"},//range: [40, 160], 
-      yaxis: {title: "Preço (R$)"},  //range: [5, 16],
+      xaxis: {title: "Período"},
+      yaxis: {title: "Preço (R$)"}, 
       title: "Previsão para 90 dias",
       width:1000
     };
@@ -229,7 +211,7 @@ function keras(response){
     // Display using Plotly
     Plotly.newPlot("lstm_previsao_90", data, layout);
 
-    criarTabelaFuturo(data_futuro, lstm_futuro, 90, '#futuro90');
+    criarTabelaFuturo(data_futuro, lstm_futuro, 90, 'futuro90');
   }
 
   validacao();
